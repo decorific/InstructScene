@@ -9,7 +9,7 @@ import torch.nn.functional as F
 
 from .networks import *
 
-from src.utils.logger import StatsLogger
+from utils.logger import StatsLogger
 
 
 class SgObjfeatVQDiffusion(nn.Module):

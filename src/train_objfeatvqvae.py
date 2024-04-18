@@ -4,6 +4,9 @@ import time
 import random
 import pickle
 from copy import deepcopy
+import sys
+sys.path.append("./")
+
 
 import numpy as np
 import torch

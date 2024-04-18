@@ -3,6 +3,8 @@ import argparse
 import random
 import pickle
 from copy import deepcopy
+import sys
+sys.path.append("./")
 
 from tqdm import tqdm
 import numpy as np

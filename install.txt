@@ -1,0 +1,87 @@
+
+	Installation:
+
+cd InstructScene
+bash settings/setup.sh
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------
+	Downloading the dataset (python command line):
+
+import os
+from huggingface_hub import hf_hub_url
+url = hf_hub_url(repo_id="chenguolin/InstructScene_dataset", filename="InstructScene.zip", repo_type="dataset")
+os.system(f"wget {url} && unzip InstructScene.zip")
+url = hf_hub_url(repo_id="chenguolin/InstructScene_dataset", filename="3D-FRONT.zip", repo_type="dataset")
+os.system(f"wget {url} && unzip 3D-FRONT.zip")
+
+(more info: https://github.com/decorific/InstructScene/blob/main/dataset/README.md)
+------------------------------------------------------------------------------------------------------------------------------------------
+	fVQ-VAE
+
+	Downloading the pretrained weights:
+
+import os
+from huggingface_hub import hf_hub_url
+os.system("mkdir -p out/threedfront_objfeat_vqvae/checkpoints")
+url = hf_hub_url(repo_id="chenguolin/InstructScene_dataset", filename="threedfront_objfeat_vqvae_epoch_01999.pth", repo_type="dataset")
+os.system(f"wget {url} -O out/threedfront_objfeat_vqvae/checkpoints/epoch_01999.pth")
+url = hf_hub_url(repo_id="chenguolin/InstructScene_dataset", filename="objfeat_bounds.pkl", repo_type="dataset")
+os.system(f"wget {url} -O out/threedfront_objfeat_vqvae/objfeat_bounds.pkl")
+
+	Training the fVQ-VAE from scratch:
+
+bash scripts/train_objfeatvqvae.sh threedfront_objfeat_vqvae 0
+
+	Inference:
+
+bash scripts/inference_objfeatvqvae.sh threedfront_objfeat_vqvae 0 -1
+
+------------------------------------------------------------------------------------------------------------------------------------------
+	Layout Decoder: 3D scenes from semantic graphs
+
+	Training:
+
+# bash scripts/train_sg2sc_objfeat.sh <room_type> <tag> <gpu_id> <fvqvae_tag>
+bash scripts/train_sg2sc_objfeat.sh bedroom bedroom_sg2scdiffusion_objfeat 0 threedfront_objfeat_vqvae
+
+(a training for every room type is required [bedroom, livingroom, diningroom])
+
+	Inference:
+# bash scripts/inference_sg2sc_objfeat.sh <room_type> <tag> <gpu_id> <epoch> <fvqvae_tag> <(optional) cfg_scale>
+bash scripts/inference_sg2sc_objfeat.sh bedroom bedroom_sg2scdiffusion_objfeat 0 -1 threedfront_objfeat_vqvae 1.0
+
+
+(To visualize synthesized scenes, replace --n_scene 0 in scripts/inference_sg2sc_objfeat.sh to --n_scenes 5 --visualize 
+--resolution 1024, which means to visualize 5 synthesized scenes and save the rendered images with a resolution of 1024x1024. 
+Otherwise, it will only compute the iRecall score for evaluation.)
+
+(The pretrained weights for 20 epochs can be downloaded also from the Drive. Place the "out" folder inside the "InstructScene")
+------------------------------------------------------------------------------------------------------------------------------------------
+	Semantic Graph Prior: design semantic graphs from instructions
+
+	Training:
+# bash scripts/train_sg_vq_objfeat.sh <room_type> <tag> <gpu_id>
+bash scripts/train_sg_vq_objfeat.sh bedroom bedroom_sgdiffusion_vq_objfeat 0
+
+(a training for every room type is required [bedroom, livingroom, diningroom])
+
+	Inference:
+# bash scripts/inference_sg_vq_objfeat.sh <room_type> <tag> <gpu_id> <epoch> <fvqvae_tag> <sg2sc_tag> <(optional) cfg_scale> <(optional) sg2sc_cfg_scale>
+bash scripts/inference_sg_vq_objfeat.sh bedroom bedroom_sgdiffusion_vq_objfeat 0 -1 threedfront_objfeat_vqvae bedroom_sg2scdiffusion_objfeat 1.0 1.0
+
+(To visualize synthesized scenes, replace --n_scene 0 in scripts/inference_sg_vq_objfeat.sh to --n_scenes 5 --visualize 
+--resolution 1024, which means to visualize 5 synthesized scenes and save the rendered images with a resolution of 1024x1024.
+Otherwise, it will only compute the iRecall score for evaluation.)
+
+	Evaluation:
+
+python3 src/compute_fid_scores.py configs/bedroom_sgdiffusion_vq_objfeat.yaml --tag bedroom_sgdiffusion_vq_objfeat --checkpoint_epoch -1
+python3 src/synthetic_vs_real_classifier.py configs/bedroom_sgdiffusion_vq_objfeat.yaml --tag bedroom_sgdiffusion_vq_objfeat --checkpoint_epoch -1
+
+	Application:
+Replace the python file name in scripts/inference_sg_vq_objfeat.sh from generate_sg.py to stylize_sg.py, rearrange_sg.py or 
+complete_sg.py for "stylization", "rearrangement" or "completion" downstream tasks, respectively.
+
+(The pretrained weights for 20 epochs can be downloaded also from the Drive. Place the "out" folder inside the "InstructScene")
+

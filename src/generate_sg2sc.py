@@ -2,6 +2,8 @@ import os
 import argparse
 import random
 import pickle
+import sys
+sys.path.append("./")
 
 from tqdm import tqdm
 import numpy as np

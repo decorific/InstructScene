@@ -6,7 +6,7 @@ from torch import nn
 
 from .networks import *
 
-from src.utils.logger import StatsLogger
+from utils.logger import StatsLogger
 
 
 class ObjectFeatureVQVAE(nn.Module):

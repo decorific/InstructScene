@@ -11,7 +11,7 @@ from diffusers.schedulers.scheduling_ddim import DDIMScheduler
 
 from .networks import *
 
-from src.utils.logger import StatsLogger
+from utils.logger import StatsLogger
 
 
 class Sg2ScDiffusion(nn.Module):

@@ -10,11 +10,11 @@ from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from diffusers.training_utils import EMAModel
 
-from src.utils import *
-from src.data import get_encoded_dataset, filter_function
-from src.data.utils_text import fill_templates
-from src.models import model_from_config, optimizer_from_config, ObjectFeatureVQVAE
-from src.models.clip_encoders import CLIPTextEncoder
+from utils import *
+from data import get_encoded_dataset, filter_function
+from data.utils_text import fill_templates
+from models import model_from_config, optimizer_from_config, ObjectFeatureVQVAE
+from models.clip_encoders import CLIPTextEncoder
 
 
 def main():

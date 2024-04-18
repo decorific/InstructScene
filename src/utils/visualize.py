@@ -3,9 +3,9 @@ from PIL.Image import Image as PILImage
 from numpy import ndarray
 from trimesh import Trimesh
 from torch import Tensor
-from src.data.threed_front_scene import Room
-from src.data.threed_front import CachedRoom
-from src.data.threed_future_dataset import ThreedFutureDataset
+from data.threed_front_scene import Room
+from data.threed_front import CachedRoom
+from data.threed_future_dataset import ThreedFutureDataset
 
 import os
 import tempfile
